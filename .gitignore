@@ -10,13 +10,7 @@ build/
 *.dylib
 
 # Executables produced by this project
-server
-client
-hashmap
-lru
-parser
-main
-persistence
+
 
 # Runtime files and data
 /data/
