@@ -1,0 +1,50 @@
+# Ignore build artifacts
+/build/
+build/
+
+# Object files and libraries
+*.o
+*.obj
+*.so
+*.a
+*.dylib
+
+# Executables produced by this project
+server
+client
+hashmap
+lru
+parser
+main
+persistence
+
+# Runtime files and data
+/data/
+data/
+*.log
+*.tmp
+*.bak
+
+# Coverage and profiling
+coverage/
+*.gcda
+*.gcno
+*.gcov
+
+# Editor/IDE files
+.vscode/
+.idea/
+*.swp
+*~
+*.sublime-workspace
+*.sublime-project
+
+# System files
+.DS_Store
+
+# Tags
+tags
+
+# Misc
+*.exe
+*.dll
