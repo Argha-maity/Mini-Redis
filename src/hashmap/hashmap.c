@@ -31,21 +31,15 @@ void deleteKey(HashTable *table, char *key){
 
     while (temp != NULL) {
         if (strcmp(temp->key, key) == 0) {
-
-            // remove from linked list
             if (prev == NULL) {
                 table->buckets[index] = temp->next;
             } else {
                 prev->next = temp->next;
             }
-
-            // free node
             free(temp);
-
             table->count--;
             return;
         }
-
         prev = temp;
         temp = temp->next;
     }
@@ -91,17 +85,28 @@ void set(HashTable *table, LRUList *lru, char *key, char *value) {
 }
 
 char* get(HashTable *table, LRUList *lru, char *key) {
-    unsigned int index = calculateHash(key) % table->size;
+    unsigned int index = calculateHash(key)%table->size;
     Node *temp = table->buckets[index];
 
     while (temp != NULL) {
-        if (strcmp(temp->key, key) == 0) {
+        if(strcmp(temp->key, key) == 0) {
             moveToHead(lru, temp->lru_ptr);
             return temp->value;
         }
         temp = temp->next;
     }
     return NULL;
+}
+
+char existsKey(HashTable *table, char *key){
+    unsigned int index=calculateHash(key)%table->size;
+    Node *ptr=table->buckets[index];
+    while(ptr!=NULL){
+        if(strcmp(ptr->key, key) == 0)
+            return '1';
+        ptr=ptr->next;
+    }
+    return '0';
 }
 
 void printHashMap(HashTable *table) {

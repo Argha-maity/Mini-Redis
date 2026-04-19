@@ -7,10 +7,18 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <pthread.h>
 #include "../parser/parser.h"
 #include "../hashmap/hashmap.h"
+#include "../commands/commands.h"
 
 #define DATASIZE 100
+
+typedef struct ThreadArgs{
+    int cs;
+    HashTable *table;
+    LRUList *lru;
+}ThreadArgs;
 
 #ifndef SERVER_H
 #define SERVER_H

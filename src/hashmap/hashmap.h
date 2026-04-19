@@ -28,5 +28,6 @@ char* get(HashTable *table, LRUList *lru, char *key);
 HashTable *initHashTable(int n);
 void printHashMap(HashTable *table);
 void deleteKey(HashTable *table, char *key);
+char existsKey(HashTable *table, char *key);
 
 #endif /* HASHMAP_H */

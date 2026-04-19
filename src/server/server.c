@@ -1,5 +1,25 @@
 #include "server.h"
 
+void* handleClient(void* arg){
+    ThreadArgs *args = (ThreadArgs*)arg;
+
+    int ts=args->cs;
+    HashTable *table=args->table;
+    LRUList *lru=args->lru;
+    char data[DATASIZE], **words;
+
+    int n = read(ts, data, DATASIZE-1);
+    if(n > 0){
+        data[n]='\0';
+        words=parseString(data);
+        handleCommand(ts, words, table, lru);
+        free(words);
+    }
+    close(ts);
+    free(args); 
+    return NULL;
+}
+
 void server(int port, char ip[], HashTable *table, LRUList *lru){
     int ss=socket(AF_INET, SOCK_STREAM, 0);
 
@@ -16,31 +36,17 @@ void server(int port, char ip[], HashTable *table, LRUList *lru){
     socklen_t clen=sizeof(caddr);
     
     while(1){ 
-        int ts=accept(ss, (struct sockaddr*)&caddr, &clen);    
-        char data[DATASIZE], **words;
-        int n=read(ts, (void*)data, DATASIZE - 1); 
-        if(n > 0) {
-            data[n]='\0';  
-            printf("Data received from client: %s\n", data);
-            
-            words=parseString(data);
-            
-            if(strcmp(words[0], "SET") == 0){
-                set(table, lru, words[1], words[2]);
-                printHashMap(table);
-                printf("===================\n");
-                printLRUList(lru);
-                char ch='1';
-                write(ts, &ch, 1);
-            }
-            else if(strcmp(words[0], "GET") == 0){
-                char *name=get(table, lru, words[1]);
-                printf("The %s(Key)--> %s(Value)\n", words[1], name);
-                write(ts, (void*)name, strlen(name));
-            }
-            free(words);
-        }
-        close(ts);
+        int ts=accept(ss, (struct sockaddr*)&caddr, &clen);   
+
+        pthread_t thrd;
+
+        ThreadArgs *args=malloc(sizeof(ThreadArgs));
+        args->cs=ts;
+        args->table=table;
+        args->lru=lru;
+
+        pthread_create(&thrd, NULL, handleClient, args);
+        pthread_detach(thrd);
     }
     close(ss);
 }
