@@ -1,4 +1,5 @@
 #include "hashmap.h"
+#include "../persistence/persistence.h"
 
 HashTable *initHashTable(int n){
     HashTable *table = (HashTable*)malloc(sizeof(HashTable));
@@ -23,7 +24,7 @@ unsigned long calculateHash(char str[]){
     return hash;
 }
 
-void deleteKey(HashTable *table, char *key){
+void deleteKey(HashTable *table, char *key, bool skipLog){
     unsigned int index = calculateHash(key) % table->size;
 
     Node *temp = table->buckets[index];
@@ -36,6 +37,8 @@ void deleteKey(HashTable *table, char *key){
             } else {
                 prev->next = temp->next;
             }
+            if(!skipLog)
+                log_command("DEL", temp->key, NULL);
             free(temp);
             table->count--;
             return;
@@ -45,7 +48,7 @@ void deleteKey(HashTable *table, char *key){
     }
 }
 
-void set(HashTable *table, LRUList *lru, char *key, char *value) {
+void set(HashTable *table, LRUList *lru, char *key, char *value, bool skipLog) {
     unsigned int index = calculateHash(key) % table->size;
     Node *temp = table->buckets[index];
 
@@ -54,6 +57,8 @@ void set(HashTable *table, LRUList *lru, char *key, char *value) {
         if(strcmp(temp->key, key) == 0) {
             strcpy(temp->value, value);
             moveToHead(lru, temp->lru_ptr);
+            if(!skipLog)
+                log_command("SET", temp->key, temp->value);
             return;
         }
         temp = temp->next;
@@ -66,9 +71,9 @@ void set(HashTable *table, LRUList *lru, char *key, char *value) {
     if(lru->size >= lru->maxSize){
         char *keyToEvict = removeTail(lru);  //remove from LRU list
         if(keyToEvict != NULL){
-            printf("Evicting Least Recently Used key: %s\n", keyToEvict);
-            deleteKey(table, keyToEvict);   //delete from hashmap
-            free(keyToEvict);
+            // printf("Evicting Least Recently Used key: %s\n", keyToEvict);
+            deleteKey(table, keyToEvict, true);   //delete from hashmap
+            // free(keyToEvict);
         }
     }
 
@@ -81,6 +86,8 @@ void set(HashTable *table, LRUList *lru, char *key, char *value) {
 
     newNode->next=table->buckets[index];
     table->buckets[index] = newNode;
+    if(!skipLog)
+        log_command("SET", newNode->key, newNode->value);
     table->count++;
 }
 

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include<stdbool.h>
 #include "../lru/lru.h"
 
 #ifndef DATASIZE
@@ -23,11 +24,11 @@ typedef struct HashTable {
     Node **buckets; // Array of Node pointers
 } HashTable;
 
-void set(HashTable *table, LRUList *lru, char *key, char *value);
+void set(HashTable *table, LRUList *lru, char *key, char *value, bool skipLog);
 char* get(HashTable *table, LRUList *lru, char *key);
 HashTable *initHashTable(int n);
 void printHashMap(HashTable *table);
-void deleteKey(HashTable *table, char *key);
+void deleteKey(HashTable *table, char *key, bool skipLog);
 char existsKey(HashTable *table, char *key);
 
 #endif /* HASHMAP_H */
